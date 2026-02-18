@@ -1,7 +1,9 @@
 ---
+name: llm-analytics
 description: Track LLM and AI costs in PostHog
 argument-hint: [time-range]
 ---
+name: llm-analytics
 
 # LLM Analytics
 

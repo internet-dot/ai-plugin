@@ -1,7 +1,9 @@
 ---
+name: actions
 description: Manage PostHog actions (reusable event definitions)
 argument-hint: [action-name]
 ---
+name: actions
 
 # Actions
 

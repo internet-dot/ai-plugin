@@ -1,7 +1,9 @@
 ---
+name: workspace
 description: Manage PostHog organizations, projects, and view event/property definitions
 argument-hint: [org-or-project]
 ---
+name: workspace
 
 # Workspace
 

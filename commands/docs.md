@@ -1,7 +1,9 @@
 ---
+name: docs
 description: Search PostHog documentation
 argument-hint: [search-query]
 ---
+name: docs
 
 # Documentation
 

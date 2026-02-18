@@ -1,7 +1,9 @@
 ---
+name: search
 description: Search across all PostHog entities
 argument-hint: <search-term>
 ---
+name: search
 
 # Search
 

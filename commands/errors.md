@@ -1,7 +1,9 @@
 ---
+name: errors
 description: View PostHog error tracking data
 argument-hint: [error-id]
 ---
+name: errors
 
 # Error Tracking
 

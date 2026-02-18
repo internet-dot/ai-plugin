@@ -1,7 +1,9 @@
 ---
+name: surveys
 description: Manage PostHog surveys
 argument-hint: [survey-name]
 ---
+name: surveys
 
 # Surveys
 
