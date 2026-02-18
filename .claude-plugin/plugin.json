@@ -8,7 +8,7 @@
     "url": "https://posthog.com"
   },
   "homepage": "https://posthog.com/docs/model-context-protocol",
-  "repository": "https://github.com/PostHog/posthog-for-claude",
+  "repository": "https://github.com/PostHog/ai-plugin",
   "license": "MIT",
   "keywords": ["analytics", "feature-flags", "experiments", "error-tracking", "a/b-testing", "surveys", "dashboards", "llm-analytics"]
 }

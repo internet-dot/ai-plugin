@@ -1,0 +1,13 @@
+{
+  "name": "posthog",
+  "displayName": "PostHog",
+  "version": "1.0.0",
+  "description": "Access PostHog analytics, feature flags, experiments, error tracking, and insights directly from Cursor",
+  "author": {
+    "name": "PostHog",
+    "email": "hey@posthog.com"
+  },
+  "license": "MIT",
+  "keywords": ["analytics", "feature-flags", "experiments", "error-tracking", "a/b-testing", "surveys", "dashboards", "llm-analytics"],
+  "logo": "assets/logo.svg"
+}

@@ -1,21 +1,25 @@
-# PostHog for Claude
+# PostHog AI Plugin
 
-Official PostHog plugin for Claude Code. Access your analytics, feature flags, experiments, and error tracking directly from Claude.
+Official PostHog plugin for Claude Code and Cursor. Access your analytics, feature flags, experiments, and error tracking directly from your AI coding tool.
 
 ## Installation
 
-### From Claude Code
+### Claude Code
 
 ```bash
 claude plugin install posthog
 ```
 
+### Cursor
+
+Install from the [Cursor Marketplace](https://cursor.com/marketplace) or add manually in Cursor Settings > Plugins.
+
 ### Manual installation
 
 1. Clone and install the plugin:
 ```bash
-git clone https://github.com/PostHog/posthog-for-claude
-claude --plugin-dir ./posthog-for-claude
+git clone https://github.com/PostHog/ai-plugin
+claude --plugin-dir ./ai-plugin
 ```
 
 2. Authenticate via OAuth:
@@ -86,7 +90,7 @@ If your PostHog project is on EU Cloud, set the `POSTHOG_MCP_URL` environment va
 export POSTHOG_MCP_URL="https://mcp-eu.posthog.com/mcp"
 ```
 
-Then restart Claude Code or open a new terminal session.
+Then restart your editor or open a new terminal session.
 
 ## Self-hosted
 
