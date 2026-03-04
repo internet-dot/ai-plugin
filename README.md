@@ -1,6 +1,6 @@
 # PostHog AI Plugin
 
-Official PostHog plugin for Claude Code and Cursor. Access your analytics, feature flags, experiments, and error tracking directly from your AI coding tool.
+Official PostHog plugin for AI clients. Access your analytics, feature flags, experiments, and error tracking directly from your AI coding tool.
 
 ## Installation
 
