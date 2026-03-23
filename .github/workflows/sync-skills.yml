@@ -1,0 +1,99 @@
+name: Sync skills from PostHog release
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # Daily at midday UTC
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch to sync skills into'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  sync-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Download skills from PostHog release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download agent-skills-latest \
+            --repo PostHog/posthog \
+            --pattern 'skills.zip' \
+            --dir /tmp
+
+      - name: Download skills from context-mill
+        run: |
+          curl -fsSL --retry 2 --retry-delay 3 \
+            -o /tmp/context-mill.zip \
+            "https://github.com/PostHog/context-mill/releases/latest/download/skills-mcp-resources.zip"
+
+      - name: Sync skills directory
+        run: |
+          MANIFEST="skills/.sync-manifest"
+
+          # Delete only previously-synced skills (listed in manifest)
+          if [ -f "$MANIFEST" ]; then
+            while IFS= read -r dir; do
+              [ -n "$dir" ] && rm -rf "skills/$dir"
+            done < "$MANIFEST"
+          fi
+
+          # Extract PostHog release skills
+          unzip -o /tmp/skills.zip -d skills/
+
+          # Extract context-mill skills (nested zips, strip omnibus- prefix)
+          tmp_cm=$(mktemp -d)
+          unzip -q -o /tmp/context-mill.zip -d "$tmp_cm"
+          cm_skills=""
+          while read -r inner_zip; do
+            skill_name="$(basename "$inner_zip" .zip)"
+            skill_name="${skill_name#omnibus-}"
+            cm_skills="$cm_skills $skill_name"
+            mkdir -p "skills/$skill_name"
+            unzip -q -o "$inner_zip" -d "skills/$skill_name"
+            find "skills/$skill_name" -name 'SKILL.md' -type f -exec sed -i 's/^\(name: *\)omnibus-/\1/' {} +
+          done < <(find "$tmp_cm" -name 'omnibus-*.zip' -type f)
+          rm -rf "$tmp_cm"
+
+          # Rebuild manifest from both sources
+          {
+            zipinfo -1 /tmp/skills.zip | grep '/' | cut -d'/' -f1
+            for s in $cm_skills; do echo "$s"; done
+          } | sort -u > "$MANIFEST"
+
+      - name: Commit and push if changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add skills/
+          if git diff --cached --quiet; then
+            echo "No changes detected."
+            exit 0
+          fi
+
+          # Extract version info from both sources
+          PH_BODY=$(gh release view agent-skills-latest --repo PostHog/posthog --json body -q '.body' 2>/dev/null || echo "")
+          PH_VERSION=$(echo "$PH_BODY" | grep -oE 'agent-skills-v[0-9.]+' | head -1)
+
+          CM_TAG=$(gh release view --repo PostHog/context-mill --json tagName -q '.tagName' 2>/dev/null || echo "")
+
+          VERSIONS=""
+          [ -n "$PH_VERSION" ] && VERSIONS="$PH_VERSION"
+          [ -n "$CM_TAG" ] && VERSIONS="${VERSIONS:+$VERSIONS, }context-mill@$CM_TAG"
+          VERSIONS="${VERSIONS:-latest}"
+
+          git commit -m "chore: sync skills ($VERSIONS)"
+          git push
