@@ -85,6 +85,14 @@ jobs:
             exit 0
           fi
 
+          # Bump patch version in plugin manifests
+          for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json; do
+            if [ -f "$f" ]; then
+              jq '.version |= (split(".") | .[2] = (.[2] | tonumber + 1 | tostring) | join("."))' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+              git add "$f"
+            fi
+          done
+
           # Extract version info from both sources
           PH_BODY=$(gh release view agent-skills-latest --repo PostHog/posthog --json body -q '.body' 2>/dev/null || echo "")
           PH_VERSION=$(echo "$PH_BODY" | grep -oE 'agent-skills-v[0-9.]+' | head -1)
