@@ -53,12 +53,12 @@ jobs:
 
           # Extract context-mill skills (nested zips, strip omnibus- prefix)
           tmp_cm=$(mktemp -d)
+          cm_manifest=$(mktemp)
           unzip -q -o /tmp/context-mill.zip -d "$tmp_cm"
-          cm_skills=""
           while read -r inner_zip; do
             skill_name="$(basename "$inner_zip" .zip)"
             skill_name="${skill_name#omnibus-}"
-            cm_skills="$cm_skills $skill_name"
+            echo "$skill_name" >> "$cm_manifest"
             mkdir -p "skills/$skill_name"
             unzip -q -o "$inner_zip" -d "skills/$skill_name"
             find "skills/$skill_name" -name 'SKILL.md' -type f -exec sed -i 's/^\(name: *\)omnibus-/\1/' {} +
@@ -68,8 +68,9 @@ jobs:
           # Rebuild manifest from both sources
           {
             zipinfo -1 /tmp/skills.zip | grep '/' | cut -d'/' -f1
-            for s in $cm_skills; do echo "$s"; done
+            cat "$cm_manifest"
           } | sort -u > "$MANIFEST"
+          rm -f "$cm_manifest"
 
       - name: Commit and push if changed
         env:
