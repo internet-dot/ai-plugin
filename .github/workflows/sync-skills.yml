@@ -78,7 +78,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git add -A skills/
+          git add -A skills/ commands/*.toml gemini-extension.json
           if git diff --cached --quiet; then
             echo "No changes detected."
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
@@ -87,11 +87,16 @@ jobs:
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
 
           # Bump patch version in plugin manifests
-          for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json; do
+          for f in .claude-plugin/plugin.json .cursor-plugin/plugin.json gemini-extension.json; do
             if [ -f "$f" ]; then
               jq '.version |= (split(".") | .[2] = (.[2] | tonumber + 1 | tostring) | join("."))' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
             fi
           done
+
+          # Regenerate Gemini TOML command files from MD sources
+          if [ -x scripts/generate-gemini-commands.sh ]; then
+            bash scripts/generate-gemini-commands.sh
+          fi
 
           # Extract version info from both sources
           PH_BODY=$(gh release view agent-skills-latest --repo PostHog/posthog --json body -q '.body' 2>/dev/null || echo "")
